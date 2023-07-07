@@ -6,8 +6,9 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 #import tempfile
 import pyzbar.pyzbar
+import configparser
 
-version = "20230708.0147"
+version = "20230708.0251"
 
 class MainWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
    def __init__(self, app):
@@ -41,20 +42,80 @@ class MainWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
       Установка настроек приложения
       '''
       self.settings = {}
-      # В крайнем случае устанавливаем на значения по умолчанию
-      self.setDefaultSettings()
+
+      try:
+         # Устанавливаем настройки из файла
+         config = configparser.ConfigParser()
+         config.read('config.ini', encoding="utf-8")
+
+         # размер холста
+         self.settings["sizeA4"] = (config.getint('size','width'), config.getint('size','height'))
+         self.spinBox_widthA4.setValue(self.settings["sizeA4"][0])
+         self.spinBox_heightA4.setValue(self.settings["sizeA4"][1])
+
+         # вертикальное расстояние между штрихкодами
+         self.settings["barcodeVSpacing"] = config.getint('barcodeSpacing','barcodeVSpacing')
+         self.spinBox_barcodeVSpacing.setValue(self.settings["barcodeVSpacing"])
+         # горизонтальное расстояние между штрихкодами
+         self.settings["barcodeHSpacing"] = config.getint('barcodeSpacing','barcodeHSpacing')
+         self.spinBox_barcodeHSpacing.setValue(self.settings["barcodeHSpacing"])
+
+         # добавлять ли подпись под штрихкодом
+         self.settings["addText"] = config.getboolean('barcodeDecoding','addText')
+         self.groupBox_barcodeDecoding.setChecked(self.settings["addText"])
+         # высота подписи под штрихкодом
+         self.settings["pixelFontHeight"] = config.getint('barcodeDecoding','pixelFontHeight')
+         self.spinBox_pixelFontHeight.setValue(self.settings["pixelFontHeight"])
+         # отступ подписи от штрихкода
+         self.settings["marginText"] = config.getint('barcodeDecoding','marginText')
+         self.spinBox_marginText.setValue(self.settings["marginText"])
+      except (configparser.NoSectionError, configparser.NoOptionError) as e:
+         if self.debug:
+            print(e)
+
+         # В крайнем случае устанавливаем на значения по умолчанию
+         self.setDefaultSettings()
 
    def setDefaultSettings(self):
       '''
       Установка настроек по умолчанию
       '''
-      self.settings["sizeA4"] = (1568, 2218) # размер холста
-      self.settings["barcodeVSpacing"] = 25 # вертикальное расстояние между штрихкодами
-      self.settings["barcodeHSpacing"] = 0 # горизонтальное расстояние между штрихкодами
+      config = configparser.ConfigParser()
 
-      self.settings["addText"] = True # добавлять ли подпись под штрихкодом
-      self.settings["pixelFontHeight"] = 25 # высота подписи под штрихкодом
-      self.settings["marginText"] = 5 # отступ подписи от штрихкода
+      config.add_section('size')
+      # размер холста
+      self.settings["sizeA4"] = (1568, 2218)
+      config.set('size','width',f"{self.settings['sizeA4'][0]}")
+      config.set('size','height',f"{self.settings['sizeA4'][1]}")
+      self.spinBox_widthA4.setValue(self.settings["sizeA4"][0])
+      self.spinBox_heightA4.setValue(self.settings["sizeA4"][1])
+
+      config.add_section('barcodeSpacing')
+      # вертикальное расстояние между штрихкодами
+      self.settings["barcodeVSpacing"] = 25
+      config.set('barcodeSpacing','barcodeVSpacing',f"{self.settings['barcodeVSpacing']}")
+      self.spinBox_barcodeVSpacing.setValue(self.settings["barcodeVSpacing"])
+      # горизонтальное расстояние между штрихкодами
+      self.settings["barcodeHSpacing"] = 0
+      config.set('barcodeSpacing','barcodeHSpacing',f"{self.settings['barcodeHSpacing']}")
+      self.spinBox_barcodeHSpacing.setValue(self.settings["barcodeHSpacing"])
+
+      config.add_section('barcodeDecoding')
+      # добавлять ли подпись под штрихкодом
+      self.settings["addText"] = True
+      config.set('barcodeDecoding','addText',f"{self.settings['addText']}")
+      self.groupBox_barcodeDecoding.setChecked(self.settings["addText"])
+      # высота подписи под штрихкодом
+      self.settings["pixelFontHeight"] = 25
+      config.set('barcodeDecoding','pixelFontHeight',f"{self.settings['pixelFontHeight']}")
+      self.spinBox_pixelFontHeight.setValue(self.settings["pixelFontHeight"])
+      # отступ подписи от штрихкода
+      self.settings["marginText"] = 5
+      config.set('barcodeDecoding','marginText',f"{self.settings['marginText']}")
+      self.spinBox_marginText.setValue(self.settings["marginText"])
+
+      with open('config.ini','w', encoding="utf-8") as f:
+         config.write(f);
 
    def openFiles(self):
       '''
