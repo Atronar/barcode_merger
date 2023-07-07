@@ -4,10 +4,10 @@ import sys
 import mimetypes
 import os
 from PIL import Image, ImageDraw, ImageFont
-import tempfile
+#import tempfile
 import pyzbar.pyzbar
 
-version = "20230708.0039"
+version = "20230708.0147"
 
 class MainWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
    def __init__(self, app):
@@ -141,28 +141,36 @@ class MainWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
       # Работаем только при наличии списка файлов
       if self.list_items:
-         # Создание нового белого холста в чёрно-белом режиме
-         img = Image.new("1", self.settings["sizeA4"], color="#ffffff")
-         # Рисуем из верхнего левого угла
-         box = {"right": 0, "bottom": 0, "maxbottom": 0}
-         index_item = 0
+         # Подготавливаем список допустимых расширений для фильтра
+         imageExtensions = " ".join(f"*{ext}" for ext in self.imageExtensions())
 
-         # Создаём временный файл
-         tempFilePath = tempfile.mktemp('.png')
+         # Выбираем место сохранения файла
+         defaultFileName = "barcode.png"
+         filePath = QtWidgets.QFileDialog.getSaveFileName(self, directory=defaultFileName, filter=f"Изображения ({imageExtensions});;Все файлы (*)")[0]
 
-         # Проходим по списку файлов со штрихкодами
-         for barcodePath in self.list_items:
-            # Координаты указаны - холст есть
-            if box:
-         #barcodePath = self.list_items[0]
-         #while box:
-               index_item += 1
-               self.statusbar.showMessage(f"({index_item}/{len(self.list_items)}) Добавление на лист {barcodePath}", self.statusbarTimeout)
-               # Добавляем штрихкод на холст и обновляем координаты для следующего штрихкода
-               img, box = self.addBarcode(img, barcodePath, box)
+         if filePath:
+            # Создание нового белого холста в чёрно-белом режиме
+            img = Image.new("1", self.settings["sizeA4"], color="#ffffff")
+            # Рисуем из верхнего левого угла
+            box = {"right": 0, "bottom": 0, "maxbottom": 0}
+            index_item = 0
+   
+            # Создаём временный файл
+            #tempFilePath = tempfile.mktemp('.png')
+   
+            # Проходим по списку файлов со штрихкодами
+            for barcodePath in self.list_items:
+               # Координаты указаны - холст есть
+               if box:
+            #barcodePath = self.list_items[0]
+            #while box:
+                  index_item += 1
+                  self.statusbar.showMessage(f"({index_item}/{len(self.list_items)}) Добавление на лист {barcodePath}", self.statusbarTimeout)
+                  # Добавляем штрихкод на холст и обновляем координаты для следующего штрихкода
+                  img, box = self.addBarcode(img, barcodePath, box)
 
-         # Сохраняем изображение в файл
-         img.save(tempFilePath)
+            # Сохраняем изображение в файл
+            img.save(filePath)
    
          self.statusbar.showMessage(f"Файл для печати создан", self.statusbarTimeout)
 
