@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 import tempfile
 import pyzbar.pyzbar
 
-version = "20230707.2224"
+version = "20230707.2330"
 
 class MainWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
    def __init__(self, app):
