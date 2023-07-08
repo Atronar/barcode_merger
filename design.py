@@ -16,7 +16,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 600)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("barcode_icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(":/ico/barcode_icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -262,3 +262,4 @@ class Ui_MainWindow(object):
         self.label_versionText.setText(_translate("MainWindow", "Версия:"))
         self.label_version.setText(_translate("MainWindow", "тестовая"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_about), _translate("MainWindow", "О программе"))
+import resources_rc

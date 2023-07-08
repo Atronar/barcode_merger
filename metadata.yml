@@ -1,0 +1,10 @@
+﻿Version: VERSION.txt
+InternalName: Barcode Merger
+LegalCopyright: ATroN
+OriginalFilename: Barcode Merger.exe
+ProductName: Barcode Merger
+Translation:
+  - langID: 0
+    charsetID: 1200
+  - langID: 1049
+    charsetID: 1251

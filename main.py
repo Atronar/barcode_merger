@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw, ImageFont
 import pyzbar.pyzbar
 import configparser
 
-version = "20230708.0442"
+version = "2023.7.8.442"
 
 class MainWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
    def __init__(self, app):

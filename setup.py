@@ -5,7 +5,7 @@ setup(
   name = "barcode_merger",
   description = "Данное приложение позволяет объединить несколько файлов-изображений со штрихкодами в один лист, готовый для печати.",
   url = "https://github.com/Atronar/barcode_merger",
-  version = "20230708.0442",
+  version = "2023.7.8.442",
   author = "ATroN",
   author_email = "master.atron@gmail.com",
   python_requires='>=3.8',

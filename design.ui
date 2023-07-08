@@ -14,8 +14,8 @@
    <string>Объединение штрихкодов</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>barcode_icon.png</normaloff>barcode_icon.png</iconset>
+   <iconset resource="resources.qrc">
+    <normaloff>:/ico/barcode_icon.png</normaloff>:/ico/barcode_icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -483,6 +483,8 @@ p, li { white-space: pre-wrap; }
   <tabstop>spinBox_marginText</tabstop>
   <tabstop>textBrowser</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

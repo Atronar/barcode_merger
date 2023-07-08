@@ -161,3 +161,4 @@ cython_debug/
 
 pyuic.bat
 config.ini
+version.rc
