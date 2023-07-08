@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw, ImageFont
 import pyzbar.pyzbar
 import configparser
 
-version = "20230708.0251"
+version = "20230708.0442"
 
 class MainWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
    def __init__(self, app):
@@ -17,9 +17,6 @@ class MainWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
       # Устанавливаем текущую версию
       self.label_version.setText(version)
-
-      # Todo: реализовать настройки
-      self.tab_settings.setEnabled(False)
 
       # Ключ дебага устанавливается из командной строки
       self.debug = False
@@ -30,6 +27,15 @@ class MainWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
       self.pushButton_clearList.clicked.connect(self.clearList)
       self.pushButton_generatePrint.clicked.connect(self.generateFile)
       self.listWidget_files.viewport().installEventFilter(self)
+
+      self.spinBox_widthA4.valueChanged.connect(self.setWidthA4)
+      self.spinBox_heightA4.valueChanged.connect(self.setHeightA4)
+      self.spinBox_barcodeVSpacing.valueChanged.connect(self.setBarcodeVSpacing)
+      self.spinBox_barcodeHSpacing.valueChanged.connect(self.setBarcodeHSpacing)
+      self.groupBox_barcodeDecoding.clicked.connect(self.setAddText)
+      self.spinBox_pixelFontHeight.valueChanged.connect(self.setPixelFontHeight)
+      self.spinBox_marginText.valueChanged.connect(self.setMarginText)
+      self.pushButton_saveSettings.clicked.connect(self.saveSettings)
 
       self.list_items = []
       self.statusbarTimeout = 2000
@@ -49,7 +55,7 @@ class MainWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
          config.read('config.ini', encoding="utf-8")
 
          # размер холста
-         self.settings["sizeA4"] = (config.getint('size','width'), config.getint('size','height'))
+         self.settings["sizeA4"] = [config.getint('size','width'), config.getint('size','height')]
          self.spinBox_widthA4.setValue(self.settings["sizeA4"][0])
          self.spinBox_heightA4.setValue(self.settings["sizeA4"][1])
 
@@ -84,7 +90,7 @@ class MainWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
       config.add_section('size')
       # размер холста
-      self.settings["sizeA4"] = (1568, 2218)
+      self.settings["sizeA4"] = [1568, 2218]
       config.set('size','width',f"{self.settings['sizeA4'][0]}")
       config.set('size','height',f"{self.settings['sizeA4'][1]}")
       self.spinBox_widthA4.setValue(self.settings["sizeA4"][0])
@@ -116,6 +122,90 @@ class MainWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
       with open('config.ini','w', encoding="utf-8") as f:
          config.write(f);
+
+   def saveSettings(self):
+      '''
+      Сохранение текущих настроек в файл
+      '''
+      config = configparser.ConfigParser()
+
+      config.add_section('size')
+      # размер холста
+      config.set('size','width',f"{self.settings['sizeA4'][0]}")
+      config.set('size','height',f"{self.settings['sizeA4'][1]}")
+
+      config.add_section('barcodeSpacing')
+      # вертикальное расстояние между штрихкодами
+      config.set('barcodeSpacing','barcodeVSpacing',f"{self.settings['barcodeVSpacing']}")
+      # горизонтальное расстояние между штрихкодами
+      config.set('barcodeSpacing','barcodeHSpacing',f"{self.settings['barcodeHSpacing']}")
+
+      config.add_section('barcodeDecoding')
+      # добавлять ли подпись под штрихкодом
+      config.set('barcodeDecoding','addText',f"{self.settings['addText']}")
+      # высота подписи под штрихкодом
+      config.set('barcodeDecoding','pixelFontHeight',f"{self.settings['pixelFontHeight']}")
+      # отступ подписи от штрихкода
+      config.set('barcodeDecoding','marginText',f"{self.settings['marginText']}")
+
+      with open('config.ini','w', encoding="utf-8") as f:
+         config.write(f);
+
+   def setWidthA4(self):
+      '''
+      Установка настройки ширины холста
+      '''
+      if self.debug:
+         print("WidthA4", self.spinBox_widthA4.value())
+      self.settings["sizeA4"][0] = self.spinBox_widthA4.value()
+
+   def setHeightA4(self):
+      '''
+      Установка настройки высоты холста
+      '''
+      if self.debug:
+         print("HeightA4", self.spinBox_heightA4.value())
+      self.settings["sizeA4"][1] = self.spinBox_heightA4.value()
+
+   def setBarcodeVSpacing(self):
+      '''
+      Установка настройки вертикального расстояния между штрихкодами
+      '''
+      if self.debug:
+         print("VSpacing", self.spinBox_barcodeVSpacing.value())
+      self.settings["barcodeVSpacing"] = self.spinBox_barcodeVSpacing.value()
+
+   def setBarcodeHSpacing(self):
+      '''
+      Установка настройки горизонтального расстояния между штрихкодами
+      '''
+      if self.debug:
+         print("HSpacing", self.spinBox_barcodeHSpacing.value())
+      self.settings["barcodeHSpacing"] = self.spinBox_barcodeHSpacing.value()
+
+   def setAddText(self):
+      '''
+      Установка настройки добавления подписи под штрихкодом
+      '''
+      if self.debug:
+         print("addText", self.groupBox_barcodeDecoding.isChecked())
+      self.settings["addText"] = self.groupBox_barcodeDecoding.isChecked()
+
+   def setPixelFontHeight(self):
+      '''
+      Установка настройки высоты подписи под штрихкодом
+      '''
+      if self.debug:
+         print("PixelFontHeight", self.spinBox_pixelFontHeight.value())
+      self.settings["pixelFontHeight"] = self.spinBox_pixelFontHeight.value()
+
+   def setMarginText(self):
+      '''
+      Установка настройки отступа подписи от штрихкода
+      '''
+      if self.debug:
+         print("MarginText", self.spinBox_marginText.value())
+      self.settings["marginText"] = self.spinBox_marginText.value()
 
    def openFiles(self):
       '''
